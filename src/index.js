@@ -5,9 +5,17 @@ import express from "express";
 
 dotenv.config({ path: "./env" });
 
-connectDB();
-
 const app = express();
+
+connectDB()
+  .then(() => {
+    app.listen(process.env.PORT || 8000, () => {
+      console.log(`Server is runnig on the port: ${process.env.PORT}`);
+    });
+  })
+  .catch((err) => {
+    console.log(`MONGODN connection failed !!,err`);
+  });
 
 /*(async () => {
   try {
