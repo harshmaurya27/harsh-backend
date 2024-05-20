@@ -22,7 +22,7 @@ app.use(cookieParser());
 
 import userRouter from "./routes/user.routes.js";
 
-// rotes declaration
+// ruotes declaer
 app.use("/api/v1/users", userRouter);
 
 export { app };
