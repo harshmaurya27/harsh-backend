@@ -90,27 +90,37 @@ const loginUser = asyncHandler(async (req, res) => {
   const { email, username, password } = req.body;
   console.log(email);
 
-  if (!username && email) {
-    throw new ApiError(400, " username or password is required");
+  if (!username && !email) {
+    throw new ApiError(400, " username or  email is required");
   }
 
-  const user = await User.findOne({ $or: [{ username }, { email }] });
+  // Here is an alternative of above code based on logic discussed in video:
+  // if (!(username || email)) {
+  //     throw new ApiError(400, "username or email is required")
+
+  // }
+
+  const user = await User.findOne({
+    $or: [{ username }, { email }],
+  });
 
   if (!user) {
-    throw new ApiError(404, "user does not exist");
+    throw new ApiError(404, "User does not exist");
   }
 
   const isPasswordValid = await user.isPasswordCorrect(password);
 
   if (!isPasswordValid) {
-    throw new ApiError(404, "Invalid User Password");
+    throw new ApiError(401, "Invalid user credentials");
   }
+
   const { accessToken, refreshToken } = await generateAccessAndRefreshToken(
     user._id
   );
   const loggedInUser = await User.findById(user._id).select(
     "-password -refreshToken"
   );
+  console.log(loggedInUser);
   const options = {
     httpOnly: true,
     secure: true,
@@ -128,7 +138,7 @@ const loginUser = asyncHandler(async (req, res) => {
           accessToken,
           refreshToken,
         },
-        "user loggrd in successfully"
+        "user logged in successfully"
       )
     );
 });
